@@ -4,6 +4,10 @@ A beautiful and feature-rich Al-Quran digital application built with React and T
 
 ![Al-Quran Digital Screenshot](example.png)
 
+# Live Demo
+
+🌐 Check out the live demonstration: https://alquran-cibofdevs.netlify.app
+
 ## Features
 
 - 📖 Read the Quran with Arabic text and English translation
