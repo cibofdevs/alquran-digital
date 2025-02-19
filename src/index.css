@@ -3,14 +3,13 @@
 @tailwind utilities;
 
 @layer base {
-  /* Default Arabic font for non-iOS platforms */
+  /* Default font-face declarations */
   @font-face {
     font-family: 'Amiri';
     font-style: normal;
     font-weight: 400;
-    font-display: block;
-    src: url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMA7w.woff2') format('woff2'),
-    url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMS.woff') format('woff');
+    font-display: swap;
+    src: url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMA7w.woff2') format('woff2');
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
   }
 
@@ -18,17 +17,15 @@
     font-family: 'Amiri';
     font-style: normal;
     font-weight: 700;
-    font-display: block;
-    src: url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2') format('woff2'),
-    url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaYxzps.woff') format('woff');
+    font-display: swap;
+    src: url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2') format('woff2');
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
   }
 }
 
-/* Base Arabic text styles */
+/* Base Arabic text for desktop */
 .font-arabic {
-  /* Desktop fallback first */
-  font-family: 'Amiri', system-ui, -apple-system;
+  font-family: 'Amiri', system-ui;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -39,27 +36,44 @@
   direction: rtl;
 }
 
-/* iOS-specific styles */
+/* iOS-specific overrides */
 @supports (-webkit-touch-callout: none) {
   .font-arabic {
-    /* Apple's recommended system fonts for Arabic */
-    font-family: -apple-system-ui-arabic, 'SF Arabic', 'Geeza Pro', system-ui;
-    /* Enable Arabic text features */
-    font-feature-settings: "cv02", "cv03", "cv04", "kern", "liga", "calt";
-    -webkit-font-feature-settings: "cv02", "cv03", "cv04", "kern", "liga", "calt";
-    /* Optimize rendering */
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    /* Fix letter spacing for better connectivity */
-    letter-spacing: -0.1px;
+    /* iOS system fonts only */
+    font-family: ".SF Arabic", "Geeza Pro", -apple-system !important;
+
+    /* Reset inherited properties */
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+
+    /* iOS-specific text features */
+    -webkit-font-feature-settings: "ccmp" 1, "init" 1, "medi" 1, "fina" 1, "rlig" 1 !important;
+    font-feature-settings: "ccmp" 1, "init" 1, "medi" 1, "fina" 1, "rlig" 1 !important;
+
+    /* Force GPU acceleration */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+
+    /* Text rendering and smoothing */
+    text-rendering: geometricPrecision !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
+    -webkit-text-size-adjust: 100% !important;
+  }
+
+  /* Additional iOS optimization for Arabic text */
+  .font-arabic[lang="ar"] {
+    font-feature-settings: "ccmp" 1, "init" 1, "medi" 1, "fina" 1, "rlig" 1 !important;
+    -webkit-font-feature-settings: "ccmp" 1, "init" 1, "medi" 1, "fina" 1, "rlig" 1 !important;
   }
 }
 
-/* Dark mode optimization for iOS */
+/* iOS dark mode specific adjustments */
 @media (prefers-color-scheme: dark) {
   @supports (-webkit-touch-callout: none) {
     .font-arabic {
-      -webkit-font-smoothing: antialiased;
+      -webkit-font-smoothing: antialiased !important;
     }
   }
 }
@@ -109,15 +123,9 @@
 
 /* Animations */
 @keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
 @keyframes fadeIn {
@@ -154,15 +162,9 @@
 }
 
 @keyframes highlight {
-  0% {
-    background-color: rgba(59, 130, 246, 0.1);
-  }
-  50% {
-    background-color: rgba(59, 130, 246, 0.2);
-  }
-  100% {
-    background-color: transparent;
-  }
+  0% { background-color: rgba(59, 130, 246, 0.1); }
+  50% { background-color: rgba(59, 130, 246, 0.2); }
+  100% { background-color: transparent; }
 }
 
 .animate-float {

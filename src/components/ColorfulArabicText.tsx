@@ -12,7 +12,6 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
   };
 
   const getCharColor = (char: string, hasTaskdid: boolean, className: string): string => {
-    // If a custom class is provided (like for Bismillah), use it instead of default colors
     if (className.includes('text-white')) {
       return className;
     }
@@ -27,19 +26,30 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
   };
 
   return (
-    <span className={`inline-block ${className}`} dir="rtl">
+      <span
+          className={`inline-block ${className}`}
+          dir="rtl"
+          lang="ar"
+          style={{
+            WebkitTextSizeAdjust: '100%',
+            textSizeAdjust: '100%'
+          }}
+      >
       {text.split('').map((char, index) => {
         const hasTasydid = hasNextTasydid(text, index);
         const color = getCharColor(char, hasTasydid, className);
-        
+
         return (
-          <span
-            key={index}
-            className={`${color} transition-colors duration-200 text-2xl leading-loose font-arabic`}
-            style={{
-              textShadow: hasTasydid ? '0 0 1px currentColor' : 'none'
-            }}
-          >
+            <span
+                key={index}
+                className={`${color} transition-colors duration-200 text-2xl leading-loose font-arabic`}
+                style={{
+                  transform: 'translateZ(0)',
+                  WebkitFontSmoothing: 'subpixel-antialiased',
+                  textRendering: 'geometricPrecision',
+                  textShadow: hasTasydid ? '0 0 1px currentColor' : 'none'
+                }}
+            >
             {char}
           </span>
         );
