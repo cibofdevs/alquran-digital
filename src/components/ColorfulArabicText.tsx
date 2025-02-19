@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 interface ColorfulArabicTextProps {
     text: string;
@@ -6,14 +6,16 @@ interface ColorfulArabicTextProps {
 }
 
 const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className = '' }) => {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isSafari = isIOS && !/(Chrome|CriOS|FxiOS)/.test(navigator.userAgent);
+    const { isIOS, isSafari } = useMemo(() => {
+        const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        return { isIOS: ios, isSafari: ios && safari };
+    }, []);
 
     const baseClassName = `text-2xl leading-loose ${
         className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
     }`;
 
-    // Safari iOS specific rendering
     if (isSafari) {
         return (
             <span
@@ -22,13 +24,12 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
                 lang="ar"
             >
         <span
-            className={`${baseClassName}`}
+            className={`font-arabic ${baseClassName}`}
             style={{
-                fontFamily: '"Arial Hebrew", "Damascus", "Al Nile", "Geeza Pro"',
-                WebkitTextSizeAdjust: 'none',
+                WebkitTextSizeAdjust: '100%',
                 WebkitFontSmoothing: 'subpixel-antialiased',
-                textRendering: 'optimizeLegibility',
-                fontSynthesis: 'none'
+                fontFeatureSettings: 'ss01 1, ss02 1, ss03 1',
+                textRendering: 'geometricPrecision'
             }}
         >
           {text}
@@ -37,7 +38,6 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
         );
     }
 
-    // iOS Chrome/Firefox
     if (isIOS) {
         return (
             <span className={`inline-block ${className}`} dir="rtl" lang="ar">
@@ -46,7 +46,7 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
         );
     }
 
-    // Desktop rendering with tasydid support
+    // Desktop rendering with tasydid
     const hasNextTasydid = (text: string, index: number): boolean => {
         const nextChar = text[index + 1];
         return nextChar === 'ّ';

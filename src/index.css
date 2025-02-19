@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  /* Desktop and Android Arabic font */
+  /* Desktop Arabic font */
   @font-face {
     font-family: 'Amiri';
     font-style: normal;
@@ -36,35 +36,36 @@
 @supports (-webkit-touch-callout: none) {
   .font-arabic {
     font-family: -apple-system !important;
-    font-feature-settings: normal !important;
-    -webkit-font-feature-settings: normal !important;
-    font-variant-ligatures: normal !important;
-    letter-spacing: 0 !important;
-    text-rendering: auto !important;
+    text-rendering: optimizeLegibility !important;
     -webkit-font-smoothing: antialiased !important;
   }
 }
 
-/* Safari iOS specific rules */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  _::-webkit-full-page-media, _:future, :root .font-arabic {
-    font-family: "Arial Hebrew", "Damascus", "Al Nile", "Geeza Pro" !important;
-    text-rendering: optimizeLegibility !important;
-    -webkit-text-size-adjust: none !important;
-    -webkit-font-smoothing: subpixel-antialiased !important;
-    font-synthesis: none !important;
+/* Safari iOS specific */
+@media not all and (min-resolution:.001dpcm) {
+  @supports (-webkit-appearance:none) and (not (stroke-color:transparent)) {
+    .font-arabic {
+      font-family: -apple-system-ui-arabic, ui-sans-serif !important;
+      font-synthesis: none !important;
+      direction: rtl !important;
+      font-feature-settings: "ss01" 1, "ss02" 1, "ss03" 1 !important;
+      -webkit-font-feature-settings: "ss01" 1, "ss02" 1, "ss03" 1 !important;
+      letter-spacing: 0 !important;
+      text-rendering: geometricPrecision !important;
+      -webkit-font-smoothing: antialiased !important;
+    }
   }
 }
 
-/* Additional Safari fixes */
-@supports (-webkit-touch-callout: none) and (not (translate: none)) {
+/* Additional Safari iOS specific optimization */
+@supports (-webkit-overflow-scrolling: touch) and (-webkit-font-feature-settings: "kern") {
   .font-arabic {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000;
-    -webkit-perspective: 1000;
+    font-family: -apple-system-ui-arabic, ui-sans-serif !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
+    font-feature-settings: "kern" !important;
+    -webkit-font-feature-settings: "kern" !important;
   }
 }
 
