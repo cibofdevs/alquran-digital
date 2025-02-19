@@ -6,6 +6,30 @@ interface ColorfulArabicTextProps {
 }
 
 const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className = '' }) => {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  if (isIOS) {
+    // Simple rendering for iOS
+    return (
+        <span
+            className={`inline-block ${className}`}
+            dir="rtl"
+            lang="ar"
+        >
+        <span
+            className={`font-arabic transition-colors duration-200 text-2xl leading-loose ${
+                className.includes('text-white')
+                    ? className
+                    : 'text-gray-900 dark:text-white'
+            }`}
+        >
+          {text}
+        </span>
+      </span>
+    );
+  }
+
+  // Character-by-character rendering for non-iOS
   const hasNextTasydid = (text: string, index: number): boolean => {
     const nextChar = text[index + 1];
     return nextChar === 'ّ';
@@ -30,10 +54,6 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
           className={`inline-block ${className}`}
           dir="rtl"
           lang="ar"
-          style={{
-            WebkitTextSizeAdjust: '100%',
-            textSizeAdjust: '100%'
-          }}
       >
       {text.split('').map((char, index) => {
         const hasTasydid = hasNextTasydid(text, index);
@@ -44,9 +64,6 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
                 key={index}
                 className={`${color} transition-colors duration-200 text-2xl leading-loose font-arabic`}
                 style={{
-                  transform: 'translateZ(0)',
-                  WebkitFontSmoothing: 'subpixel-antialiased',
-                  textRendering: 'geometricPrecision',
                   textShadow: hasTasydid ? '0 0 1px currentColor' : 'none'
                 }}
             >

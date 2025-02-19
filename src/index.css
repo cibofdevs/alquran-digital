@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 @layer base {
-  /* Default font-face declarations */
+  /* Desktop and Android Arabic font */
   @font-face {
     font-family: 'Amiri';
     font-style: normal;
     font-weight: 400;
-    font-display: swap;
+    font-display: block;
     src: url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMA7w.woff2') format('woff2');
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
   }
@@ -17,64 +17,33 @@
     font-family: 'Amiri';
     font-style: normal;
     font-weight: 700;
-    font-display: swap;
+    font-display: block;
     src: url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2') format('woff2');
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
   }
 }
 
-/* Base Arabic text for desktop */
+/* Base Arabic text styles for desktop and Android */
 .font-arabic {
-  font-family: 'Amiri', system-ui;
+  font-family: 'Amiri', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1;
-  font-variant-ligatures: common-ligatures discretionary-ligatures historical-ligatures;
-  letter-spacing: 0;
-  word-spacing: normal;
   direction: rtl;
 }
 
-/* iOS-specific overrides */
+/* iOS-specific font overrides */
 @supports (-webkit-touch-callout: none) {
   .font-arabic {
-    /* iOS system fonts only */
-    font-family: ".SF Arabic", "Geeza Pro", -apple-system !important;
-
-    /* Reset inherited properties */
-    letter-spacing: normal !important;
-    word-spacing: normal !important;
-
-    /* iOS-specific text features */
-    -webkit-font-feature-settings: "ccmp" 1, "init" 1, "medi" 1, "fina" 1, "rlig" 1 !important;
-    font-feature-settings: "ccmp" 1, "init" 1, "medi" 1, "fina" 1, "rlig" 1 !important;
-
-    /* Force GPU acceleration */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-
-    /* Text rendering and smoothing */
-    text-rendering: geometricPrecision !important;
-    -webkit-font-smoothing: subpixel-antialiased !important;
-    -webkit-text-size-adjust: 100% !important;
-  }
-
-  /* Additional iOS optimization for Arabic text */
-  .font-arabic[lang="ar"] {
-    font-feature-settings: "ccmp" 1, "init" 1, "medi" 1, "fina" 1, "rlig" 1 !important;
-    -webkit-font-feature-settings: "ccmp" 1, "init" 1, "medi" 1, "fina" 1, "rlig" 1 !important;
-  }
-}
-
-/* iOS dark mode specific adjustments */
-@media (prefers-color-scheme: dark) {
-  @supports (-webkit-touch-callout: none) {
-    .font-arabic {
-      -webkit-font-smoothing: antialiased !important;
-    }
+    /* iOS system fonts */
+    font-family: -apple-system !important;
+    /* Reset properties */
+    font-feature-settings: normal !important;
+    -webkit-font-feature-settings: normal !important;
+    font-variant-ligatures: normal !important;
+    letter-spacing: 0 !important;
+    text-rendering: auto !important;
+    -webkit-font-smoothing: antialiased !important;
   }
 }
 
