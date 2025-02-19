@@ -73,14 +73,24 @@
   }
 }
 
-/* Mobile (iOS Chrome/Firefox & Android) */
-@media only screen and (max-width: 768px) {
+/* Chrome */
+@media screen and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) {
   .font-arabic {
-    font-family: "Noto Naskh Arabic UI", "Amiri", system-ui !important;
-    font-feature-settings: "kern", "liga", "calt" !important;
-    -webkit-font-feature-settings: "kern", "liga", "calt" !important;
+    font-family: "Apple Arabic", "Geeza Pro", "Noto Naskh Arabic", -apple-system !important;
+    font-feature-settings: "kern", "liga", "calt", "isol", "init", "fina", "medi" !important;
+    -webkit-font-feature-settings: "kern", "liga", "calt", "isol", "init", "fina", "medi" !important;
     text-rendering: optimizeLegibility !important;
     -webkit-font-smoothing: antialiased !important;
+  }
+}
+
+/* Firefox */
+@-moz-document url-prefix() {
+  .font-arabic {
+    font-family: "Apple Arabic", "Geeza Pro", "Noto Naskh Arabic", -apple-system !important;
+    font-feature-settings: "kern", "liga", "calt", "isol", "init", "fina", "medi" !important;
+    text-rendering: optimizeLegibility !important;
+    -moz-osx-font-smoothing: grayscale !important;
   }
 }
 
