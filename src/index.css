@@ -23,15 +23,13 @@
 }
 
 .font-arabic {
-  font-family: 'Amiri', 'Noto Naskh Arabic', 'Traditional Arabic', 'Scheherazade New', serif;
+  font-family: 'Amiri', 'Traditional Arabic', 'Scheherazade New', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "clig" 1;
-  font-variant-ligatures: common-ligatures contextual;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  font-variant-ligatures: common-ligatures;
   direction: rtl;
-  letter-spacing: 0;
-  word-spacing: normal;
 }
 
 /* Scrollbar Styles */
