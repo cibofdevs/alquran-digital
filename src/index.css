@@ -29,11 +29,19 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1;
-  font-variant-ligatures: common-ligatures discretionary-ligatures historical-ligatures;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1, "ccmp" 1;
+  font-variant-ligatures: common-ligatures discretionary-ligatures historical-ligatures contextual;
   letter-spacing: 0;
   word-spacing: normal;
   direction: rtl;
+  text-align: justify;
+  text-justify: inter-word;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-feature-settings: "ccmp" 1;
+  font-feature-settings: "ccmp" 1;
+  /* Enable Arabic text joining on iOS */
+  -webkit-text-stroke: 0.2px;
+  text-shadow: 0 0 0.2px rgba(0, 0, 0, 0.1);
 }
 
 .bismillah-container {
