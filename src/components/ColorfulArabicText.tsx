@@ -3,18 +3,21 @@ import React, { useMemo } from 'react';
 interface ColorfulArabicTextProps {
     text: string;
     className?: string;
+    isBismillah?: boolean;
 }
 
-const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className = '' }) => {
+const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
+                                                                   text,
+                                                                   className = '',
+                                                                   isBismillah = false
+                                                               }) => {
     const { isIOS, isSafari } = useMemo(() => {
         const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         return { isIOS: ios, isSafari: ios && safari };
     }, []);
 
-    const baseClassName = `text-2xl leading-loose ${
-        className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
-    }`;
+    const textClassName = isBismillah ? 'bismillah-text' : 'verse-text';
 
     if (isSafari) {
         return (
@@ -24,12 +27,17 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
                 lang="ar"
             >
         <span
-            className={`font-arabic ${baseClassName}`}
+            className={`font-arabic ${textClassName} ${
+                className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
+            }`}
             style={{
-                WebkitTextSizeAdjust: '100%',
-                WebkitFontSmoothing: 'subpixel-antialiased',
-                fontFeatureSettings: 'ss01 1, ss02 1, ss03 1',
-                textRendering: 'geometricPrecision'
+                fontFamily: isBismillah ? 'Damascus' : 'Geeza Pro',
+                WebkitTextSizeAdjust: 'none',
+                WebkitFontSmoothing: 'antialiased',
+                fontFeatureSettings: '"kern"',
+                textRendering: 'geometricPrecision',
+                letterSpacing: '0',
+                wordSpacing: 'normal'
             }}
         >
           {text}
@@ -40,8 +48,18 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
 
     if (isIOS) {
         return (
-            <span className={`inline-block ${className}`} dir="rtl" lang="ar">
-        <span className={`font-arabic ${baseClassName}`}>{text}</span>
+            <span
+                className={`inline-block ${className}`}
+                dir="rtl"
+                lang="ar"
+            >
+        <span
+            className={`font-arabic ${textClassName} ${
+                className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
+            }`}
+        >
+          {text}
+        </span>
       </span>
         );
     }
@@ -66,7 +84,11 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
     };
 
     return (
-        <span className={`inline-block ${className}`} dir="rtl" lang="ar">
+        <span
+            className={`inline-block ${className}`}
+            dir="rtl"
+            lang="ar"
+        >
       {text.split('').map((char, index) => {
           const hasTasydid = hasNextTasydid(text, index);
           const color = getCharColor(char, hasTasydid, className);
@@ -74,7 +96,7 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
           return (
               <span
                   key={index}
-                  className={`${color} transition-colors duration-200 font-arabic`}
+                  className={`${color} transition-colors duration-200 font-arabic ${textClassName}`}
                   style={{
                       textShadow: hasTasydid ? '0 0 1px currentColor' : 'none'
                   }}

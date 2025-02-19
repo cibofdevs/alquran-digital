@@ -32,6 +32,21 @@
   direction: rtl;
 }
 
+/* Regular verse text */
+.verse-text {
+  font-size: 1.5rem;
+  line-height: 2.5;
+  letter-spacing: 0;
+}
+
+/* Bismillah text */
+.bismillah-text {
+  font-size: 2rem;
+  line-height: 2;
+  text-align: center;
+  letter-spacing: 0;
+}
+
 /* iOS Chrome and Firefox */
 @supports (-webkit-touch-callout: none) {
   .font-arabic {
@@ -42,30 +57,43 @@
 }
 
 /* Safari iOS specific */
-@media not all and (min-resolution:.001dpcm) {
-  @supports (-webkit-appearance:none) and (not (stroke-color:transparent)) {
-    .font-arabic {
-      font-family: -apple-system-ui-arabic, ui-sans-serif !important;
-      font-synthesis: none !important;
-      direction: rtl !important;
-      font-feature-settings: "ss01" 1, "ss02" 1, "ss03" 1 !important;
-      -webkit-font-feature-settings: "ss01" 1, "ss02" 1, "ss03" 1 !important;
-      letter-spacing: 0 !important;
-      text-rendering: geometricPrecision !important;
-      -webkit-font-smoothing: antialiased !important;
-    }
+@supports (-webkit-touch-callout: none) and (not (translate: none)) {
+  /* Common styles for Arabic text in Safari */
+  .font-arabic {
+    font-family: "Al Bayan" !important;
+    text-rendering: geometricPrecision !important;
+    -webkit-font-smoothing: antialiased !important;
+    -webkit-text-size-adjust: none !important;
+    font-feature-settings: "kern" !important;
+    -webkit-font-feature-settings: "kern" !important;
+    font-synthesis: none !important;
+  }
+
+  /* Safari Bismillah specific */
+  .bismillah-text {
+    font-size: 1.75rem !important;
+    line-height: 1.75 !important;
+    font-family: "Damascus" !important;
+  }
+
+  /* Safari verse text specific */
+  .verse-text {
+    font-size: 1.25rem !important;
+    line-height: 2 !important;
+    font-family: "Geeza Pro" !important;
   }
 }
 
-/* Additional Safari iOS specific optimization */
-@supports (-webkit-overflow-scrolling: touch) and (-webkit-font-feature-settings: "kern") {
-  .font-arabic {
-    font-family: -apple-system-ui-arabic, ui-sans-serif !important;
-    transform: translateZ(0) !important;
-    -webkit-transform: translateZ(0) !important;
-    -webkit-font-smoothing: subpixel-antialiased !important;
-    font-feature-settings: "kern" !important;
-    -webkit-font-feature-settings: "kern" !important;
+/* Fallback for older Safari versions */
+@media not all and (min-resolution:.001dpcm) {
+  @supports (-webkit-appearance:none) {
+    .font-arabic {
+      -webkit-font-smoothing: subpixel-antialiased !important;
+      font-feature-settings: "kern", "liga" 1, "calt" 1 !important;
+      -webkit-font-feature-settings: "kern", "liga" 1, "calt" 1 !important;
+      transform: translateZ(0) !important;
+      -webkit-transform: translateZ(0) !important;
+    }
   }
 }
 
@@ -76,12 +104,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.bismillah-text {
-  display: inline-block;
-  text-align: center;
-  direction: rtl;
 }
 
 /* Scrollbar Styles */
