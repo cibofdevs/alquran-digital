@@ -47,16 +47,7 @@
   letter-spacing: 0;
 }
 
-/* iOS Chrome and Firefox */
-@supports (-webkit-touch-callout: none) {
-  .font-arabic {
-    font-family: -apple-system !important;
-    text-rendering: optimizeLegibility !important;
-    -webkit-font-smoothing: antialiased !important;
-  }
-}
-
-/* Safari iOS specific */
+/* iOS Safari specific */
 @media not all and (min-resolution:.001dpcm) {
   @supports (-webkit-appearance:none) {
     .font-arabic {
@@ -82,14 +73,31 @@
   }
 }
 
-/* Additional Safari check */
-@supports (not (backdrop-filter: none)) and (-webkit-touch-callout: none) {
+/* iOS Chrome and Firefox */
+@supports (-webkit-touch-callout: none) {
   .font-arabic {
     font-family: "Apple Arabic", "Geeza Pro", -apple-system !important;
+    font-feature-settings: "kern", "liga", "calt" !important;
+    -webkit-font-feature-settings: "kern", "liga", "calt" !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+    letter-spacing: normal !important;
   }
 }
 
-/* Basic container styles */
+/* Android Chrome and Firefox */
+@supports not (-webkit-touch-callout: none) {
+  @media screen and (-webkit-min-device-pixel-ratio:0) {
+    .font-arabic {
+      font-family: "Noto Naskh Arabic UI", "Amiri", system-ui !important;
+      font-feature-settings: "kern", "liga", "calt" !important;
+      -webkit-font-feature-settings: "kern", "liga", "calt" !important;
+      text-rendering: optimizeLegibility !important;
+      -webkit-font-smoothing: antialiased !important;
+    }
+  }
+}
+
 .bismillah-container {
   text-align: center;
   direction: rtl;
