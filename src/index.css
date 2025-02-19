@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  /* Desktop and Android Arabic font */
+  /* Non-iOS Arabic font */
   @font-face {
     font-family: 'Amiri';
     font-style: normal;
@@ -23,7 +23,7 @@
   }
 }
 
-/* Base Arabic text styles for desktop and Android */
+/* Base Arabic text styles */
 .font-arabic {
   font-family: 'Amiri', serif;
   -webkit-font-smoothing: antialiased;
@@ -45,22 +45,33 @@
   }
 }
 
-/* Safari iOS specific */
-@supports (-webkit-touch-callout: none) and (not (translate: none)) {
+/* Safari iOS specific rules */
+@media not all and (min-resolution:.001dpcm) {
+  @supports (-webkit-appearance:none) and (stroke-color:transparent) {
+    .font-arabic {
+      font-family: "Al Bayan", "Geeza Pro", "Damascus", "Baghdad", "Arabic Typesetting", -apple-system !important;
+      -webkit-font-feature-settings: "liga" 1, "calt" 1, "kern" 1 !important;
+      font-feature-settings: "liga" 1, "calt" 1, "kern" 1 !important;
+      text-rendering: optimizeLegibility !important;
+      -webkit-font-smoothing: subpixel-antialiased !important;
+      font-synthesis: none !important;
+      transform: translate3d(0, 0, 0) !important;
+      -webkit-transform: translate3d(0, 0, 0) !important;
+      backface-visibility: hidden !important;
+      -webkit-backface-visibility: hidden !important;
+    }
+  }
+}
+
+/* Additional Safari support */
+@supports (not (backdrop-filter: none)) and (-webkit-touch-callout: none) {
   .font-arabic {
-    /* Safari iOS font stack */
-    font-family: "Geeza Pro", "Apple Arabic", -apple-system !important;
-    /* Enable Arabic text features */
-    font-feature-settings: "arab" !important;
-    -webkit-font-feature-settings: "arab" !important;
-    font-variant-numeric: tabular-nums !important;
-    /* Force GPU rendering */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    /* Text smoothing */
+    font-family: "Al Bayan", "Geeza Pro", "Damascus", "Baghdad", "Arabic Typesetting", -apple-system !important;
+    -webkit-font-feature-settings: "liga" 1, "calt" 1, "kern" 1 !important;
+    font-feature-settings: "liga" 1, "calt" 1, "kern" 1 !important;
+    text-rendering: optimizeLegibility !important;
     -webkit-font-smoothing: subpixel-antialiased !important;
+    font-synthesis: none !important;
   }
 }
 
