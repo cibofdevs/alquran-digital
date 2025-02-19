@@ -13,12 +13,13 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
                                                                }) => {
     const { isIOS, isSafari } = useMemo(() => {
         const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        const safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const safari = (/Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent));
         return { isIOS: ios, isSafari: ios && safari };
     }, []);
 
     const textClassName = isBismillah ? 'bismillah-text' : 'verse-text';
 
+    // Safari iOS specific rendering
     if (isSafari) {
         return (
             <span
@@ -30,15 +31,6 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
             className={`font-arabic ${textClassName} ${
                 className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
             }`}
-            style={{
-                fontFamily: isBismillah ? 'Damascus' : 'Geeza Pro',
-                WebkitTextSizeAdjust: 'none',
-                WebkitFontSmoothing: 'antialiased',
-                fontFeatureSettings: '"kern"',
-                textRendering: 'geometricPrecision',
-                letterSpacing: '0',
-                wordSpacing: 'normal'
-            }}
         >
           {text}
         </span>
@@ -46,6 +38,7 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
         );
     }
 
+    // iOS Chrome/Firefox
     if (isIOS) {
         return (
             <span
@@ -64,7 +57,7 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
         );
     }
 
-    // Desktop rendering with tasydid
+    // Desktop/Android rendering with tasydid
     const hasNextTasydid = (text: string, index: number): boolean => {
         const nextChar = text[index + 1];
         return nextChar === 'ّ';

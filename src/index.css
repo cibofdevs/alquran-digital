@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  /* Desktop Arabic font */
   @font-face {
     font-family: 'Amiri';
     font-style: normal;
@@ -23,7 +22,7 @@
   }
 }
 
-/* Base Arabic text styles */
+/* Base Arabic text */
 .font-arabic {
   font-family: 'Amiri', serif;
   -webkit-font-smoothing: antialiased;
@@ -34,14 +33,14 @@
 
 /* Regular verse text */
 .verse-text {
-  font-size: 1.5rem;
-  line-height: 2.5;
+  font-size: 1.25rem;
+  line-height: 2.25;
   letter-spacing: 0;
 }
 
 /* Bismillah text */
 .bismillah-text {
-  font-size: 2rem;
+  font-size: 1.75rem;
   line-height: 2;
   text-align: center;
   letter-spacing: 0;
@@ -57,46 +56,28 @@
 }
 
 /* Safari iOS specific */
-@supports (-webkit-touch-callout: none) and (not (translate: none)) {
-  /* Common styles for Arabic text in Safari */
-  .font-arabic {
-    font-family: "Al Bayan" !important;
-    text-rendering: geometricPrecision !important;
-    -webkit-font-smoothing: antialiased !important;
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  _::-webkit-full-page-media, _:future, :root .font-arabic {
+    font-family: "Al Nile", -apple-system !important;
+    text-rendering: auto !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
     -webkit-text-size-adjust: none !important;
-    font-feature-settings: "kern" !important;
-    -webkit-font-feature-settings: "kern" !important;
-    font-synthesis: none !important;
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
   }
 
-  /* Safari Bismillah specific */
-  .bismillah-text {
-    font-size: 1.75rem !important;
-    line-height: 1.75 !important;
-    font-family: "Damascus" !important;
+  _::-webkit-full-page-media, _:future, :root .verse-text {
+    font-size: 1.15rem !important;
+    line-height: 2.25 !important;
   }
 
-  /* Safari verse text specific */
-  .verse-text {
-    font-size: 1.25rem !important;
+  _::-webkit-full-page-media, _:future, :root .bismillah-text {
+    font-size: 1.5rem !important;
     line-height: 2 !important;
-    font-family: "Geeza Pro" !important;
   }
 }
 
-/* Fallback for older Safari versions */
-@media not all and (min-resolution:.001dpcm) {
-  @supports (-webkit-appearance:none) {
-    .font-arabic {
-      -webkit-font-smoothing: subpixel-antialiased !important;
-      font-feature-settings: "kern", "liga" 1, "calt" 1 !important;
-      -webkit-font-feature-settings: "kern", "liga" 1, "calt" 1 !important;
-      transform: translateZ(0) !important;
-      -webkit-transform: translateZ(0) !important;
-    }
-  }
-}
-
+/* Basic container styles */
 .bismillah-container {
   text-align: center;
   direction: rtl;
