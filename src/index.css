@@ -8,7 +8,8 @@
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMA7w.woff2') format('woff2');
+    src: url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMA7w.woff2') format('woff2'),
+    url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMS.woff') format('woff');
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
   }
 
@@ -17,19 +18,39 @@
     font-style: normal;
     font-weight: 700;
     font-display: swap;
-    src: url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2') format('woff2');
+    src: url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2') format('woff2'),
+    url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaYxzps.woff') format('woff');
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
   }
 }
 
 .font-arabic {
-  font-family: 'Amiri', 'Traditional Arabic', 'Scheherazade New', serif;
+  font-family: 'Amiri', 'Apple Arabic', 'Arabic UI Text', system-ui, -apple-system, BlinkMacSystemFont, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-  font-variant-ligatures: common-ligatures;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1;
+  font-variant-ligatures: common-ligatures discretionary-ligatures historical-ligatures;
+  letter-spacing: 0;
+  word-spacing: normal;
   direction: rtl;
+}
+
+.bismillah-container {
+  text-align: center;
+  direction: rtl;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bismillah-text {
+  display: inline-block;
+  text-align: center;
+  direction: rtl;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1;
+  font-variant-ligatures: common-ligatures discretionary-ligatures historical-ligatures;
 }
 
 /* Scrollbar Styles */
