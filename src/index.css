@@ -7,7 +7,7 @@
     font-family: 'Amiri';
     font-style: normal;
     font-weight: 400;
-    font-display: swap;
+    font-display: block;
     src: url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMA7w.woff2') format('woff2'),
     url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMS.woff') format('woff');
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
@@ -17,7 +17,7 @@
     font-family: 'Amiri';
     font-style: normal;
     font-weight: 700;
-    font-display: swap;
+    font-display: block;
     src: url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2') format('woff2'),
     url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaYxzps.woff') format('woff');
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
@@ -25,23 +25,26 @@
 }
 
 .font-arabic {
-  font-family: 'Amiri', 'Apple Arabic', 'Arabic UI Text', system-ui, -apple-system, BlinkMacSystemFont, serif;
+  font-family: 'Amiri', 'Arabic UI Text', 'Traditional Arabic', system-ui, -apple-system, BlinkMacSystemFont, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1, "ccmp" 1;
-  font-variant-ligatures: common-ligatures discretionary-ligatures historical-ligatures contextual;
+  -webkit-font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1, "ccmp" 1;
+  font-variant-ligatures: common-ligatures discretionary-ligatures historical-ligatures;
   letter-spacing: 0;
   word-spacing: normal;
   direction: rtl;
-  text-align: justify;
-  text-justify: inter-word;
-  -webkit-text-size-adjust: 100%;
-  -webkit-font-feature-settings: "ccmp" 1;
-  font-feature-settings: "ccmp" 1;
-  /* Enable Arabic text joining on iOS */
-  -webkit-text-stroke: 0.2px;
-  text-shadow: 0 0 0.2px rgba(0, 0, 0, 0.1);
+}
+
+/* Mengoptimalkan tampilan untuk iOS */
+@supports (-webkit-touch-callout: none) {
+  .font-arabic {
+    font-family: 'Amiri', 'Arabic UI Text', 'Geeza Pro', system-ui, -apple-system;
+    letter-spacing: -0.2px;
+    -webkit-font-smoothing: subpixel-antialiased;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1, "ccmp" 1, "init" 1, "medi" 1, "fina" 1;
+  }
 }
 
 .bismillah-container {
