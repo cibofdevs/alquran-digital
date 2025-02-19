@@ -47,7 +47,7 @@
   letter-spacing: 0;
 }
 
-/* iOS Safari specific */
+/* Safari iOS specific */
 @media not all and (min-resolution:.001dpcm) {
   @supports (-webkit-appearance:none) {
     .font-arabic {
@@ -73,28 +73,14 @@
   }
 }
 
-/* iOS Chrome and Firefox */
-@supports (-webkit-touch-callout: none) {
+/* Mobile (iOS Chrome/Firefox & Android) */
+@media only screen and (max-width: 768px) {
   .font-arabic {
-    font-family: "Apple Arabic", "Geeza Pro", -apple-system !important;
+    font-family: "Noto Naskh Arabic UI", "Amiri", system-ui !important;
     font-feature-settings: "kern", "liga", "calt" !important;
     -webkit-font-feature-settings: "kern", "liga", "calt" !important;
     text-rendering: optimizeLegibility !important;
     -webkit-font-smoothing: antialiased !important;
-    letter-spacing: normal !important;
-  }
-}
-
-/* Android Chrome and Firefox */
-@supports not (-webkit-touch-callout: none) {
-  @media screen and (-webkit-min-device-pixel-ratio:0) {
-    .font-arabic {
-      font-family: "Noto Naskh Arabic UI", "Amiri", system-ui !important;
-      font-feature-settings: "kern", "liga", "calt" !important;
-      -webkit-font-feature-settings: "kern", "liga", "calt" !important;
-      text-rendering: optimizeLegibility !important;
-      -webkit-font-smoothing: antialiased !important;
-    }
   }
 }
 

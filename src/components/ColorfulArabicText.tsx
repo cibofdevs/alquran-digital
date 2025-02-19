@@ -11,40 +11,18 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
                                                                    className = '',
                                                                    isBismillah = false
                                                                }) => {
-    const { isSafari, isMobile, isAndroid } = useMemo(() => {
+    const { isSafari } = useMemo(() => {
         const ua = navigator.userAgent.toLowerCase();
-        const isSafari = /safari/.test(ua) && !/chrome|android/.test(ua);
-        const isIOS = /iphone|ipad|ipod/.test(ua);
-        const isAndroid = /android/.test(ua);
-        return {
-            isSafari,
-            isMobile: isIOS || isAndroid,
-            isAndroid
-        };
+        const isSafari = /safari/.test(ua) && !/(chrome|crios|firefox|fxios)/.test(ua);
+        return { isSafari };
     }, []);
 
     const baseClassName = `font-arabic ${isBismillah ? 'bismillah-text' : 'verse-text'} ${
         className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
     }`;
 
-    // Mobile browser specific rendering
-    if (isMobile) {
-        const styles = {
-            fontFeatureSettings: '"kern", "liga", "calt"',
-            WebkitFontFeatureSettings: '"kern", "liga", "calt"',
-            textRendering: 'optimizeLegibility',
-            WebkitFontSmoothing: 'antialiased',
-            ...(isSafari && {
-                fontFeatureSettings: '"kern", "liga", "clig", "calt", "isol", "init", "fina", "medi"',
-                WebkitFontFeatureSettings: '"kern", "liga", "clig", "calt", "isol", "init", "fina", "medi"',
-                fontSynthesis: 'none',
-                letterSpacing: '-0.01em'
-            }),
-            ...(isAndroid && {
-                fontFamily: '"Noto Naskh Arabic UI", "Amiri", system-ui'
-            })
-        };
-
+    // Safari-specific rendering
+    if (isSafari) {
         return (
             <span
                 className={`inline-block`}
@@ -53,7 +31,12 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
             >
         <span
             className={baseClassName}
-            style={styles}
+            style={{
+                fontFeatureSettings: '"kern", "liga", "clig", "calt", "isol", "init", "fina", "medi"',
+                WebkitFontFeatureSettings: '"kern", "liga", "clig", "calt", "isol", "init", "fina", "medi"',
+                fontSynthesis: 'none',
+                letterSpacing: '-0.01em'
+            }}
         >
           {text}
         </span>
@@ -61,7 +44,7 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
         );
     }
 
-    // Desktop rendering with tasydid
+    // Mobile and Desktop rendering with tasydid
     const hasNextTasydid = (text: string, index: number): boolean => {
         const nextChar = text[index + 1];
         return nextChar === 'ّ';
