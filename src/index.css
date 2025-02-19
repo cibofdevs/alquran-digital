@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+  /* Desktop Arabic font */
   @font-face {
     font-family: 'Amiri';
     font-style: normal;
@@ -22,7 +23,7 @@
   }
 }
 
-/* Base Arabic text */
+/* Base Arabic text styles */
 .font-arabic {
   font-family: 'Amiri', serif;
   -webkit-font-smoothing: antialiased;
@@ -56,24 +57,35 @@
 }
 
 /* Safari iOS specific */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  _::-webkit-full-page-media, _:future, :root .font-arabic {
-    font-family: "Al Nile", -apple-system !important;
-    text-rendering: auto !important;
-    -webkit-font-smoothing: subpixel-antialiased !important;
-    -webkit-text-size-adjust: none !important;
-    letter-spacing: 0 !important;
-    word-spacing: normal !important;
-  }
+@media not all and (min-resolution:.001dpcm) {
+  @supports (-webkit-appearance:none) {
+    .font-arabic {
+      font-family: "Apple Arabic", "Geeza Pro", -apple-system !important;
+      font-variant-ligatures: common-ligatures !important;
+      font-feature-settings: "kern", "liga", "clig", "calt", "isol", "init", "fina", "medi" !important;
+      -webkit-font-feature-settings: "kern", "liga", "clig", "calt", "isol", "init", "fina", "medi" !important;
+      text-rendering: optimizeLegibility !important;
+      -webkit-font-smoothing: antialiased !important;
+      letter-spacing: -0.01em !important;
+      font-synthesis: none !important;
+    }
 
-  _::-webkit-full-page-media, _:future, :root .verse-text {
-    font-size: 1.15rem !important;
-    line-height: 2.25 !important;
-  }
+    .verse-text {
+      font-size: 1.125rem !important;
+      line-height: 2.25 !important;
+    }
 
-  _::-webkit-full-page-media, _:future, :root .bismillah-text {
-    font-size: 1.5rem !important;
-    line-height: 2 !important;
+    .bismillah-text {
+      font-size: 1.5rem !important;
+      line-height: 2 !important;
+    }
+  }
+}
+
+/* Additional Safari check */
+@supports (not (backdrop-filter: none)) and (-webkit-touch-callout: none) {
+  .font-arabic {
+    font-family: "Apple Arabic", "Geeza Pro", -apple-system !important;
   }
 }
 
