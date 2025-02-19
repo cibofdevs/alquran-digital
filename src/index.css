@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  /* Non-iOS Arabic font */
+  /* Desktop Arabic font */
   @font-face {
     font-family: 'Amiri';
     font-style: normal;
@@ -46,32 +46,29 @@
 }
 
 /* Safari iOS specific rules */
-@media not all and (min-resolution:.001dpcm) {
-  @supports (-webkit-appearance:none) and (stroke-color:transparent) {
-    .font-arabic {
-      font-family: "Al Bayan", "Geeza Pro", "Damascus", "Baghdad", "Arabic Typesetting", -apple-system !important;
-      -webkit-font-feature-settings: "liga" 1, "calt" 1, "kern" 1 !important;
-      font-feature-settings: "liga" 1, "calt" 1, "kern" 1 !important;
-      text-rendering: optimizeLegibility !important;
-      -webkit-font-smoothing: subpixel-antialiased !important;
-      font-synthesis: none !important;
-      transform: translate3d(0, 0, 0) !important;
-      -webkit-transform: translate3d(0, 0, 0) !important;
-      backface-visibility: hidden !important;
-      -webkit-backface-visibility: hidden !important;
-    }
+@supports (-webkit-touch-callout: none) and (not (translate: none)) {
+  .font-arabic {
+    /* Safari iOS font stack */
+    font-family: "Al Nile", "Al Bayan", system-ui, -apple-system !important;
+    /* Reset all font features */
+    font-feature-settings: initial !important;
+    -webkit-font-feature-settings: initial !important;
+    font-variant-ligatures: initial !important;
+    letter-spacing: initial !important;
+    /* Basic rendering */
+    text-rendering: geometricPrecision !important;
+    -webkit-font-smoothing: antialiased !important;
   }
 }
 
-/* Additional Safari support */
-@supports (not (backdrop-filter: none)) and (-webkit-touch-callout: none) {
-  .font-arabic {
-    font-family: "Al Bayan", "Geeza Pro", "Damascus", "Baghdad", "Arabic Typesetting", -apple-system !important;
-    -webkit-font-feature-settings: "liga" 1, "calt" 1, "kern" 1 !important;
-    font-feature-settings: "liga" 1, "calt" 1, "kern" 1 !important;
-    text-rendering: optimizeLegibility !important;
-    -webkit-font-smoothing: subpixel-antialiased !important;
-    font-synthesis: none !important;
+/* Additional Safari iOS optimizations */
+@media not all and (min-resolution:.001dpcm) {
+  @supports (-webkit-appearance:none) {
+    .font-arabic {
+      -webkit-text-size-adjust: 100% !important;
+      text-size-adjust: 100% !important;
+      font-synthesis: none !important;
+    }
   }
 }
 
