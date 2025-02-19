@@ -32,18 +32,35 @@
   direction: rtl;
 }
 
-/* iOS-specific font overrides */
+/* iOS Chrome and Firefox */
 @supports (-webkit-touch-callout: none) {
   .font-arabic {
-    /* iOS system fonts */
     font-family: -apple-system !important;
-    /* Reset properties */
     font-feature-settings: normal !important;
     -webkit-font-feature-settings: normal !important;
     font-variant-ligatures: normal !important;
     letter-spacing: 0 !important;
     text-rendering: auto !important;
     -webkit-font-smoothing: antialiased !important;
+  }
+}
+
+/* Safari iOS specific */
+@supports (-webkit-touch-callout: none) and (not (translate: none)) {
+  .font-arabic {
+    /* Safari iOS font stack */
+    font-family: "Geeza Pro", "Apple Arabic", -apple-system !important;
+    /* Enable Arabic text features */
+    font-feature-settings: "arab" !important;
+    -webkit-font-feature-settings: "arab" !important;
+    font-variant-numeric: tabular-nums !important;
+    /* Force GPU rendering */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Text smoothing */
+    -webkit-font-smoothing: subpixel-antialiased !important;
   }
 }
 

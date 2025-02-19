@@ -7,29 +7,50 @@ interface ColorfulArabicTextProps {
 
 const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className = '' }) => {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
   if (isIOS) {
-    // Simple rendering for iOS
+    // Different rendering for Safari vs other iOS browsers
+    const baseClassName = `font-arabic transition-colors duration-200 text-2xl leading-loose ${
+        className.includes('text-white')
+            ? className
+            : 'text-gray-900 dark:text-white'
+    }`;
+
     return (
         <span
             className={`inline-block ${className}`}
             dir="rtl"
             lang="ar"
         >
-        <span
-            className={`font-arabic transition-colors duration-200 text-2xl leading-loose ${
-                className.includes('text-white')
-                    ? className
-                    : 'text-gray-900 dark:text-white'
-            }`}
-        >
-          {text}
-        </span>
+        {isSafari ? (
+            // Safari iOS specific rendering
+            <span
+                className={baseClassName}
+                style={{
+                  // Force GPU rendering for Safari
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  // Additional Safari text features
+                  WebkitFontFeatureSettings: '"arab"',
+                  fontFeatureSettings: '"arab"',
+                }}
+            >
+            {text}
+          </span>
+        ) : (
+            // Other iOS browsers
+            <span className={baseClassName}>
+            {text}
+          </span>
+        )}
       </span>
     );
   }
 
-  // Character-by-character rendering for non-iOS
+  // Desktop rendering with character-by-character styling
   const hasNextTasydid = (text: string, index: number): boolean => {
     const nextChar = text[index + 1];
     return nextChar === 'ّ';
