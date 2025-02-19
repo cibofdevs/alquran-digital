@@ -6,51 +6,47 @@ interface ColorfulArabicTextProps {
 }
 
 const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className = '' }) => {
-    // Improved browser detection
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) ||
-        (/iPad|iPhone|iPod/.test(navigator.userAgent) && !/(Chrome|CriOS|FxiOS)/.test(navigator.userAgent));
+    const isSafari = isIOS && !/(Chrome|CriOS|FxiOS)/.test(navigator.userAgent);
 
-    if (isIOS) {
-        const baseClassName = `font-arabic transition-colors duration-200 text-2xl leading-loose ${
-            className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
-        }`;
+    const baseClassName = `text-2xl leading-loose ${
+        className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
+    }`;
 
-        if (isSafari) {
-            // Simplified Safari-specific rendering
-            return (
-                <span
-                    className={`inline-block ${className}`}
-                    dir="rtl"
-                    lang="ar"
-                >
-          <span
-              className={baseClassName}
-              style={{
-                  // Reset all transformations and effects
-                  transform: 'none',
-                  WebkitTransform: 'none',
-                  textRendering: 'geometricPrecision',
-                  WebkitTextSizeAdjust: '100%',
-                  textSizeAdjust: '100%',
-                  fontSynthesis: 'none'
-              }}
-          >
-            {text}
-          </span>
-        </span>
-            );
-        }
-
-        // Other iOS browsers
+    // Safari iOS specific rendering
+    if (isSafari) {
         return (
-            <span className={`inline-block ${className}`} dir="rtl" lang="ar">
-        <span className={baseClassName}>{text}</span>
+            <span
+                className={`inline-block ${className}`}
+                dir="rtl"
+                lang="ar"
+            >
+        <span
+            className={`${baseClassName}`}
+            style={{
+                fontFamily: '"Arial Hebrew", "Damascus", "Al Nile", "Geeza Pro"',
+                WebkitTextSizeAdjust: 'none',
+                WebkitFontSmoothing: 'subpixel-antialiased',
+                textRendering: 'optimizeLegibility',
+                fontSynthesis: 'none'
+            }}
+        >
+          {text}
+        </span>
       </span>
         );
     }
 
-    // Desktop rendering with character-by-character styling
+    // iOS Chrome/Firefox
+    if (isIOS) {
+        return (
+            <span className={`inline-block ${className}`} dir="rtl" lang="ar">
+        <span className={`font-arabic ${baseClassName}`}>{text}</span>
+      </span>
+        );
+    }
+
+    // Desktop rendering with tasydid support
     const hasNextTasydid = (text: string, index: number): boolean => {
         const nextChar = text[index + 1];
         return nextChar === 'ّ';
@@ -78,7 +74,7 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({ text, className
           return (
               <span
                   key={index}
-                  className={`${color} transition-colors duration-200 text-2xl leading-loose font-arabic`}
+                  className={`${color} transition-colors duration-200 font-arabic`}
                   style={{
                       textShadow: hasTasydid ? '0 0 1px currentColor' : 'none'
                   }}

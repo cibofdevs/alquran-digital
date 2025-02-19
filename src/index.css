@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  /* Desktop Arabic font */
+  /* Desktop and Android Arabic font */
   @font-face {
     font-family: 'Amiri';
     font-style: normal;
@@ -46,29 +46,25 @@
 }
 
 /* Safari iOS specific rules */
-@supports (-webkit-touch-callout: none) and (not (translate: none)) {
-  .font-arabic {
-    /* Safari iOS font stack */
-    font-family: "Al Nile", "Al Bayan", system-ui, -apple-system !important;
-    /* Reset all font features */
-    font-feature-settings: initial !important;
-    -webkit-font-feature-settings: initial !important;
-    font-variant-ligatures: initial !important;
-    letter-spacing: initial !important;
-    /* Basic rendering */
-    text-rendering: geometricPrecision !important;
-    -webkit-font-smoothing: antialiased !important;
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  _::-webkit-full-page-media, _:future, :root .font-arabic {
+    font-family: "Arial Hebrew", "Damascus", "Al Nile", "Geeza Pro" !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-text-size-adjust: none !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
+    font-synthesis: none !important;
   }
 }
 
-/* Additional Safari iOS optimizations */
-@media not all and (min-resolution:.001dpcm) {
-  @supports (-webkit-appearance:none) {
-    .font-arabic {
-      -webkit-text-size-adjust: 100% !important;
-      text-size-adjust: 100% !important;
-      font-synthesis: none !important;
-    }
+/* Additional Safari fixes */
+@supports (-webkit-touch-callout: none) and (not (translate: none)) {
+  .font-arabic {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000;
+    -webkit-perspective: 1000;
   }
 }
 
