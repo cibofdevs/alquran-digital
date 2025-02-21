@@ -3,97 +3,84 @@
 @tailwind utilities;
 
 @layer base {
-  /* Desktop Arabic font */
+  /* Primary Arabic font - Scheherazade */
   @font-face {
-    font-family: 'Amiri';
-    font-style: normal;
+    font-family: 'Scheherazade';
+    src: url('https://fonts.gstatic.com/s/scheherazadenew/v14/4UaZrFhTvxVnHDvUkUiHg8jprP4DOwFmO24p.woff2') format('woff2'),
+    url('https://fonts.gstatic.com/s/scheherazadenew/v14/4UaZrFhTvxVnHDvUkUiHg8jprP4DOwFmO24p.woff') format('woff');
     font-weight: 400;
-    font-display: block;
-    src: url('https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMA7w.woff2') format('woff2');
+    font-style: normal;
+    font-display: swap;
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
   }
 
+  /* Secondary Arabic font - Noto Naskh Arabic */
   @font-face {
-    font-family: 'Amiri';
+    font-family: 'Noto Naskh Arabic';
+    src: url('https://fonts.gstatic.com/s/notonaskharabic/v25/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwvc5UDEEHQbp.woff2') format('woff2');
+    font-weight: 400;
     font-style: normal;
-    font-weight: 700;
-    font-display: block;
-    src: url('https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2') format('woff2');
+    font-display: swap;
     unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
   }
 }
 
 /* Base Arabic text styles */
 .font-arabic {
-  font-family: 'Amiri', serif;
+  font-family: 'Scheherazade', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern", "liga", "calt";
+  -webkit-font-feature-settings: "kern", "liga", "calt";
+  font-synthesis: none;
   direction: rtl;
 }
 
 /* Regular verse text */
 .verse-text {
-  font-size: 1.25rem;
-  line-height: 2.25;
-  letter-spacing: 0;
+  font-size: 1.75rem;
+  line-height: 2.5;
+  text-align: right;
 }
 
 /* Bismillah text */
 .bismillah-text {
-  font-size: 1.75rem;
+  font-size: 2.25rem;
   line-height: 2;
   text-align: center;
-  letter-spacing: 0;
 }
 
-/* Safari iOS specific */
+/* Safari iOS specific adjustments */
 @media not all and (min-resolution:.001dpcm) {
   @supports (-webkit-appearance:none) {
     .font-arabic {
       font-family: "Apple Arabic", "Geeza Pro", -apple-system !important;
-      font-variant-ligatures: common-ligatures !important;
-      font-feature-settings: "kern", "liga", "clig", "calt", "isol", "init", "fina", "medi" !important;
-      -webkit-font-feature-settings: "kern", "liga", "clig", "calt", "isol", "init", "fina", "medi" !important;
+      font-feature-settings: "kern", "liga", "calt" !important;
+      -webkit-font-feature-settings: "kern", "liga", "calt" !important;
       text-rendering: optimizeLegibility !important;
       -webkit-font-smoothing: antialiased !important;
-      letter-spacing: -0.01em !important;
-      font-synthesis: none !important;
-    }
-
-    .verse-text {
-      font-size: 1.125rem !important;
-      line-height: 2.25 !important;
-    }
-
-    .bismillah-text {
-      font-size: 1.5rem !important;
-      line-height: 2 !important;
     }
   }
 }
 
-/* Chrome */
-@media screen and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) {
+/* Chrome-specific optimizations */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
   .font-arabic {
-    font-family: "Apple Arabic", "Geeza Pro", "Noto Naskh Arabic", -apple-system !important;
-    font-feature-settings: "kern", "liga", "calt", "isol", "init", "fina", "medi" !important;
-    -webkit-font-feature-settings: "kern", "liga", "calt", "isol", "init", "fina", "medi" !important;
-    text-rendering: optimizeLegibility !important;
-    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision;
+    font-feature-settings: "kern", "liga", "calt";
   }
 }
 
-/* Firefox */
+/* Firefox-specific optimizations */
 @-moz-document url-prefix() {
   .font-arabic {
-    font-family: "Apple Arabic", "Geeza Pro", "Noto Naskh Arabic", -apple-system !important;
-    font-feature-settings: "kern", "liga", "calt", "isol", "init", "fina", "medi" !important;
-    text-rendering: optimizeLegibility !important;
-    -moz-osx-font-smoothing: grayscale !important;
+    font-feature-settings: "kern", "liga", "calt";
+    -moz-font-feature-settings: "kern", "liga", "calt";
   }
 }
 
+/* Bismillah container */
 .bismillah-container {
   text-align: center;
   direction: rtl;
@@ -101,6 +88,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 2rem 0;
 }
 
 /* Scrollbar Styles */
@@ -177,6 +165,7 @@
   100% { background-color: transparent; }
 }
 
+/* Animation Classes */
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -197,6 +186,7 @@
   animation: highlight 2s ease-out forwards;
 }
 
+/* Hover Effects */
 .hover-scale {
   transition: transform 0.2s ease;
 }

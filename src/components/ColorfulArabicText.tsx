@@ -15,28 +15,16 @@ const ColorfulArabicText: React.FC<ColorfulArabicTextProps> = ({
         className.includes('text-white') ? className : 'text-gray-900 dark:text-white'
     }`;
 
-    // Basic common styles for all browsers
-    const styles = {
-        fontFeatureSettings: '"kern", "liga", "calt", "isol", "init", "fina", "medi"',
-        WebkitFontFeatureSettings: '"kern", "liga", "calt", "isol", "init", "fina", "medi"',
-        textRendering: 'optimizeLegibility' as const,
-        WebkitFontSmoothing: 'antialiased' as const,
-        MozOsxFontSmoothing: 'grayscale' as const
-    };
-
     return (
         <span
-            className={`inline-block`}
+            className="inline-block w-full"
             dir="rtl"
             lang="ar"
         >
-      <span
-          className={baseClassName}
-          style={styles}
-      >
-        {text}
-      </span>
-    </span>
+            <span className={baseClassName}>
+                {text}
+            </span>
+        </span>
     );
 };
 
