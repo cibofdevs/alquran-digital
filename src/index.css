@@ -88,7 +88,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 2rem 0;
+  padding-top: 0;
+  padding-bottom: 0.25rem;
 }
 
 /* Scrollbar Styles */

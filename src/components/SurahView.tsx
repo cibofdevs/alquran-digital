@@ -210,7 +210,7 @@ const SurahView: React.FC<SurahViewProps> = ({
         </div>
 
         {showBismillah && (
-            <div className="bg-gradient-to-r from-primary-500 to-accent-500 dark:from-primary-600 dark:to-accent-600 text-white py-6">
+            <div className="bg-gradient-to-r from-primary-500 to-accent-500 dark:from-primary-600 dark:to-accent-600 text-white">
               <div className="bismillah-container">
                 <div className="bismillah-text text-3xl font-arabic">
                   <ColorfulArabicText
@@ -219,7 +219,7 @@ const SurahView: React.FC<SurahViewProps> = ({
                   />
                 </div>
               </div>
-              <div className="text-center mt-2 text-white/80 text-sm">
+              <div className="text-center text-white/80 text-sm pb-3">
                 In the name of Allah, the Entirely Merciful, the Especially Merciful
               </div>
             </div>
