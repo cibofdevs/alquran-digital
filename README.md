@@ -2,7 +2,7 @@
 
 A beautiful and feature-rich Al-Quran digital application built with React and TypeScript. Read, listen to, and bookmark verses from the Holy Quran with a clean and modern interface.
 
-![Al-Quran Digital Screenshot](example.png)
+![Al-Quran Digital Screenshot](alquran-digital.png)
 
 # Live Demo
 
@@ -74,7 +74,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - [Alquran.cloud](https://alquran.cloud) for providing the Quran API
-- [Mishary Rashid Alafasy](https://alafasy.me) for the beautiful recitations
+- [Mishary Rashid Alafasy](https://misharialafasy.net) for the beautiful recitations
 - All contributors and supporters of this project
 
 ## Support
