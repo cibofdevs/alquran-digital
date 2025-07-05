@@ -2,6 +2,7 @@
 
 A beautiful and feature-rich Al-Quran digital application built with React and TypeScript. Read, listen to, and bookmark verses from the Holy Quran with a clean and modern interface.
 
+# Preview
 ![Al-Quran Digital Screenshot](alquran-digital.png)
 
 # Live Demo

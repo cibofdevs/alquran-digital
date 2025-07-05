@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Ayah, Surah, QuranResponse, SurahResponse } from './types/quran';
 import SurahList from './components/SurahList';
 import SurahView from './components/SurahView';

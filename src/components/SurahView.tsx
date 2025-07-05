@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Ayah } from '../types/quran';
-import { BookOpen, ChevronLeft, ChevronRight, Play, Pause, Share2, Bookmark, Link, Copy } from 'lucide-react';
+import { Ayah, Bookmark } from '../types/quran';
+import { BookOpen, ChevronLeft, ChevronRight, Play, Pause, Share2, Bookmark as BookmarkIcon, Copy } from 'lucide-react';
 import ColorfulArabicText from './ColorfulArabicText';
 import { normalizeSurahName } from '../utils/surahNames';
 
@@ -126,7 +126,7 @@ const SurahView: React.FC<SurahViewProps> = ({
     const shareUrl = window.location.href;
 
     try {
-      if (navigator.share) {
+      if (typeof navigator.share === 'function') {
         await navigator.share({
           title: `${surahInfo} - Al-Quran Digital`,
           text: shareText,
@@ -269,7 +269,7 @@ const SurahView: React.FC<SurahViewProps> = ({
                                   : 'text-gray-400 dark:text-gray-500'
                           }`}
                       >
-                        <Bookmark className="w-5 h-5" fill={isBookmarked(ayah.number) ? 'currentColor' : 'none'} />
+                        <BookmarkIcon className="w-5 h-5" fill={isBookmarked(ayah.number) ? 'currentColor' : 'none'} />
                         <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                       {isBookmarked(ayah.number) ? 'Remove bookmark' : 'Add bookmark'}
                     </span>
@@ -286,9 +286,9 @@ const SurahView: React.FC<SurahViewProps> = ({
                           onClick={() => handleShare(ayah)}
                           className="p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 text-primary-600 dark:text-primary-400 group"
                       >
-                        {navigator.share ? <Share2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                        {typeof navigator.share === 'function' ? <Share2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                         <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      {navigator.share ? 'Share verse' : 'Copy verse'}
+                      {typeof navigator.share === 'function' ? 'Share verse' : 'Copy verse'}
                     </span>
                       </button>
                       {actionTooltip && actionTooltip.ayah === ayah.number && actionTooltip.action === 'share' && (
