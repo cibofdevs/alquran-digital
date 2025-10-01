@@ -93,22 +93,31 @@ const SurahView: React.FC<SurahViewProps> = ({
       }
     };
 
-    const handleUserInteraction = () => {
+    const handleUserInteraction = (event: Event) => {
       if (!userHasInteracted) {
-        setUserHasInteracted(true);
-        initAudioContext();
+        // Only count meaningful interactions, not accidental scrolls or passive touches
+        const isValidInteraction = 
+          event.type === 'click' || 
+          event.type === 'keydown' ||
+          (event.type === 'touchend' && event.target && 
+           (event.target as HTMLElement).closest('button, [role="button"], .clickable'));
         
-        // Resume AudioContext if suspended
-        if (audioContext && audioContext.state === 'suspended') {
-          audioContext.resume();
+        if (isValidInteraction) {
+          setUserHasInteracted(true);
+          initAudioContext();
+          
+          // Resume AudioContext if suspended
+          if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+          }
         }
       }
     };
 
-    // Add event listeners for user interaction
-    const events = ['touchstart', 'touchend', 'mousedown', 'keydown', 'click'];
+    // Add event listeners for user interaction - more specific events
+    const events = ['click', 'keydown', 'touchend'];
     events.forEach(event => {
-      document.addEventListener(event, handleUserInteraction, { once: true, passive: true });
+      document.addEventListener(event, handleUserInteraction, { passive: true });
     });
 
     return () => {
@@ -364,14 +373,14 @@ const SurahView: React.FC<SurahViewProps> = ({
       <div ref={containerRef} className="h-full overflow-y-auto bg-white/90 dark:bg-dark-200/90 rounded-lg shadow-lg backdrop-blur-sm">
         {/* Mobile autoplay notice */}
         {!userHasInteracted && (
-          <div className="bg-orange-100 dark:bg-orange-900/30 border-l-4 border-orange-500 p-3 text-sm">
+          <div className="bg-orange-100 dark:bg-orange-900/30 border-l-4 border-orange-500 p-4 text-sm sticky top-0 z-20">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <Play className="w-4 h-4 text-orange-500" />
+                <Play className="w-5 h-5 text-orange-500 animate-pulse" />
               </div>
               <div className="ml-3">
-                <p className="text-orange-700 dark:text-orange-300">
-                  <strong>Mobile Audio Notice:</strong> Tap anywhere on the page to enable audio playback for recitation.
+                <p className="text-orange-700 dark:text-orange-300 font-medium">
+                  <strong>Audio Playback:</strong> Tap any button or click anywhere to enable audio recitation on mobile devices.
                 </p>
               </div>
             </div>
@@ -386,7 +395,7 @@ const SurahView: React.FC<SurahViewProps> = ({
             <button
                 onClick={onPrevSurah}
                 disabled={!hasPrevSurah}
-                className={`p-2 rounded-full ${
+                className={`clickable p-2 rounded-full ${
                     hasPrevSurah
                         ? 'hover:bg-white/10'
                         : 'opacity-50 cursor-not-allowed'
@@ -397,7 +406,7 @@ const SurahView: React.FC<SurahViewProps> = ({
             <button
                 onClick={onNextSurah}
                 disabled={!hasNextSurah}
-                className={`p-2 rounded-full ${
+                className={`clickable p-2 rounded-full ${
                     hasNextSurah
                         ? 'hover:bg-white/10'
                         : 'opacity-50 cursor-not-allowed'
@@ -447,7 +456,7 @@ const SurahView: React.FC<SurahViewProps> = ({
                     <div className="relative">
                       <button
                           onClick={() => handlePlay(ayah.number)}
-                          className={`p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 group ${
+                          className={`clickable p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 group ${
                             playingAyah === ayah.number && !userHasInteracted && audio
                               ? 'text-orange-500 dark:text-orange-400 animate-pulse'
                               : 'text-primary-600 dark:text-primary-400'
@@ -475,7 +484,7 @@ const SurahView: React.FC<SurahViewProps> = ({
                     <div className="relative">
                       <button
                           onClick={() => handleBookmark(ayah)}
-                          className={`p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 group ${
+                          className={`clickable p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 group ${
                               isBookmarked(ayah.number)
                                   ? 'text-primary-600 dark:text-primary-400'
                                   : 'text-gray-400 dark:text-gray-500'
@@ -496,7 +505,7 @@ const SurahView: React.FC<SurahViewProps> = ({
                     <div className="relative">
                       <button
                           onClick={() => handleShare(ayah)}
-                          className="p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 text-primary-600 dark:text-primary-400 group"
+                          className="clickable p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 text-primary-600 dark:text-primary-400 group"
                       >
                         {typeof navigator.share === 'function' ? <Share2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                         <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
