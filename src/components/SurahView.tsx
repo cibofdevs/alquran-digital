@@ -413,9 +413,37 @@ const SurahView: React.FC<SurahViewProps> = ({
   };
 
   const playNextAyah = async (currentAyahNumber: number) => {
+    console.log('[Mobile Audio Debug] playNextAyah called for current ayah:', currentAyahNumber);
+    console.log('[Mobile Audio Debug] Is mobile device in playNextAyah:', isMobileDevice);
+    console.log('[Mobile Audio Debug] User has interacted in playNextAyah:', userHasInteracted);
+    
     const nextAyah = getNextAyah(currentAyahNumber);
+    console.log('[Mobile Audio Debug] getNextAyah returned:', nextAyah ? nextAyah.number : 'null');
+    
     if (nextAyah) {
-      await handlePlayWithoutTooltip(nextAyah.number);
+      console.log('[Mobile Audio Debug] Calling handlePlayWithoutTooltip for ayah:', nextAyah.number);
+      
+      try {
+        await handlePlayWithoutTooltip(nextAyah.number);
+        console.log('[Mobile Audio Debug] handlePlayWithoutTooltip completed successfully for ayah:', nextAyah.number);
+      } catch (error) {
+        console.error('[Mobile Audio Debug] Error in handlePlayWithoutTooltip for ayah:', nextAyah.number, error);
+        
+        // Mobile-specific handling for playNextAyah failures
+        if (isMobileDevice) {
+          console.log('[Mobile Audio Debug] Mobile playNextAyah failed - likely due to autoplay restrictions');
+          
+          // Check if it's a user interaction issue
+          if (error instanceof Error && error.message.includes('User interaction required')) {
+            console.log('[Mobile Audio Debug] User interaction required for next ayah on mobile');
+            showActionTooltip(nextAyah.number, 'play', 'Tap to continue recitation');
+          }
+        }
+        
+        throw error; // Re-throw to be caught by the caller
+      }
+    } else {
+      console.log('[Mobile Audio Debug] No next ayah found, playback complete');
     }
   };
 
@@ -442,13 +470,39 @@ const SurahView: React.FC<SurahViewProps> = ({
 
     newAudio.addEventListener('ended', async () => {
       console.log('[Mobile Audio Debug] Audio ended for ayah:', ayahNumber);
+      console.log('[Mobile Audio Debug] Is mobile device:', isMobileDevice);
+      console.log('[Mobile Audio Debug] User has interacted:', userHasInteracted);
+      
       setPlayingAyah(null);
       setAudio(null);
+      
+      // Check if there's a next ayah
+      const nextAyah = getNextAyah(ayahNumber);
+      console.log('[Mobile Audio Debug] Next ayah found:', nextAyah ? nextAyah.number : 'none');
+      
+      if (!nextAyah) {
+        console.log('[Mobile Audio Debug] No next ayah available, stopping auto-play');
+        return;
+      }
       
       // Auto-play next ayah
       setTimeout(async () => {
         console.log('[Mobile Audio Debug] Auto-playing next ayah after:', ayahNumber);
-        await playNextAyah(ayahNumber);
+        console.log('[Mobile Audio Debug] Attempting to play ayah:', nextAyah.number);
+        
+        try {
+          await playNextAyah(ayahNumber);
+          console.log('[Mobile Audio Debug] Successfully triggered playNextAyah');
+        } catch (error) {
+          console.error('[Mobile Audio Debug] Error in auto-play next ayah:', error);
+          
+          // Mobile-specific error handling for auto-play chain
+          if (isMobileDevice) {
+            console.log('[Mobile Audio Debug] Mobile auto-play chain failed, user interaction may be required again');
+            // Show tooltip to indicate user needs to tap again
+            showActionTooltip(nextAyah.number, 'play', 'Tap to continue recitation');
+          }
+        }
       }, 1000); // 1 second delay before playing next ayah
     });
 
@@ -491,13 +545,41 @@ const SurahView: React.FC<SurahViewProps> = ({
     const newAudio = new Audio(`https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNumber}.mp3`);
 
     newAudio.addEventListener('ended', async () => {
+      console.log('[Mobile Audio Debug] Audio ended for ayah (second listener):', ayahNumber);
+      console.log('[Mobile Audio Debug] Is mobile device:', isMobileDevice);
+      console.log('[Mobile Audio Debug] User has interacted:', userHasInteracted);
+      
       setPlayingAyah(null);
       setAudio(null);
       showActionTooltip(ayahNumber, 'play', 'Playback completed');
       
+      // Check if there's a next ayah
+      const nextAyah = getNextAyah(ayahNumber);
+      console.log('[Mobile Audio Debug] Next ayah found (second listener):', nextAyah ? nextAyah.number : 'none');
+      
+      if (!nextAyah) {
+        console.log('[Mobile Audio Debug] No next ayah available (second listener), stopping auto-play');
+        return;
+      }
+      
       // Auto-play next ayah
        setTimeout(async () => {
-         await playNextAyah(ayahNumber);
+         console.log('[Mobile Audio Debug] Auto-playing next ayah (second listener) after:', ayahNumber);
+         console.log('[Mobile Audio Debug] Attempting to play ayah (second listener):', nextAyah.number);
+         
+         try {
+           await playNextAyah(ayahNumber);
+           console.log('[Mobile Audio Debug] Successfully triggered playNextAyah (second listener)');
+         } catch (error) {
+           console.error('[Mobile Audio Debug] Error in auto-play next ayah (second listener):', error);
+           
+           // Mobile-specific error handling for auto-play chain
+           if (isMobileDevice) {
+             console.log('[Mobile Audio Debug] Mobile auto-play chain failed (second listener), user interaction may be required again');
+             // Show tooltip to indicate user needs to tap again
+             showActionTooltip(nextAyah.number, 'play', 'Tap to continue recitation');
+           }
+         }
        }, 1000); // 1 second delay before playing next ayah
     });
 
