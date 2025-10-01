@@ -72,28 +72,32 @@ const SurahView: React.FC<SurahViewProps> = ({
   }, [ayahs]);
 
   // Cleanup audio on component unmount
+  // Cleanup effect - only run on component unmount
   useEffect(() => {
     return () => {
       if (audio) {
         audio.pause();
         setAudio(null);
       }
-      if (audioContext) {
-        audioContext.close();
-      }
+      // Don't close AudioContext here - let it persist for the session
+      // AudioContext should be reused across multiple audio playbacks
     };
-  }, [audio, audioContext]);
+  }, []); // Empty dependency array - only run on mount/unmount
 
   // Initialize AudioContext and setup user interaction detection
   useEffect(() => {
     const initAudioContext = () => {
       if (!audioContext) {
+        console.log('[Mobile Audio Debug] Initializing AudioContext...');
         const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        console.log('[Mobile Audio Debug] AudioContext created, state:', ctx.state);
         setAudioContext(ctx);
       }
     };
 
     const handleUserInteraction = (event: Event) => {
+      console.log('[Mobile Audio Debug] User interaction detected:', event.type, event.target);
+      
       if (!userHasInteracted) {
         // Only count meaningful interactions, not accidental scrolls or passive touches
         const isValidInteraction = 
@@ -102,13 +106,19 @@ const SurahView: React.FC<SurahViewProps> = ({
           (event.type === 'touchend' && event.target && 
            (event.target as HTMLElement).closest('button, [role="button"], .clickable'));
         
+        console.log('[Mobile Audio Debug] Is valid interaction:', isValidInteraction);
+        
         if (isValidInteraction) {
+          console.log('[Mobile Audio Debug] Setting userHasInteracted to true');
           setUserHasInteracted(true);
           initAudioContext();
           
           // Resume AudioContext if suspended
           if (audioContext && audioContext.state === 'suspended') {
-            audioContext.resume();
+            console.log('[Mobile Audio Debug] Resuming suspended AudioContext');
+            audioContext.resume().then(() => {
+              console.log('[Mobile Audio Debug] AudioContext resumed, new state:', audioContext.state);
+            });
           }
         }
       }
@@ -129,17 +139,45 @@ const SurahView: React.FC<SurahViewProps> = ({
 
   // Handle delayed audio playback when user interaction is detected
   useEffect(() => {
+    console.log('[Mobile Audio Debug] Delayed audio effect triggered:', {
+      userHasInteracted,
+      hasAudio: !!audio,
+      playingAyah,
+      hasAudioContext: !!audioContext,
+      audioContextState: audioContext?.state
+    });
+    
     if (userHasInteracted && audio && playingAyah && audioContext) {
       const playDelayedAudio = async () => {
         try {
-          if (audioContext.state === 'suspended') {
-            await audioContext.resume();
+          console.log('[Mobile Audio Debug] Attempting to play delayed audio...');
+          console.log('[Mobile Audio Debug] AudioContext state before play:', audioContext.state);
+          
+          // Handle closed AudioContext by creating a new one
+          if (audioContext.state === 'closed') {
+            console.log('[Mobile Audio Debug] AudioContext is closed in delayed play, creating new one...');
+            const newCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            setAudioContext(newCtx);
+            console.log('[Mobile Audio Debug] New AudioContext created for delayed play, state:', newCtx.state);
+            return; // Exit and let the effect re-run with new AudioContext
           }
+          
+          if (audioContext.state === 'suspended') {
+            console.log('[Mobile Audio Debug] Resuming AudioContext before play...');
+            await audioContext.resume();
+            console.log('[Mobile Audio Debug] AudioContext resumed, new state:', audioContext.state);
+          }
+          
+          console.log('[Mobile Audio Debug] Calling audio.play()...');
           await audio.play();
+          console.log('[Mobile Audio Debug] Audio play successful!');
           scrollToAyahCard(playingAyah);
         } catch (error) {
-           console.error('Failed to play delayed audio:', error);
-         }
+          console.error('[Mobile Audio Debug] Failed to play delayed audio:', error);
+          if (error instanceof Error) {
+            console.error('[Mobile Audio Debug] Error details:', error.message);
+          }
+        }
       };
       
       playDelayedAudio();
@@ -183,17 +221,34 @@ const SurahView: React.FC<SurahViewProps> = ({
   // Helper function to handle audio playback with mobile browser support
   const playAudioWithMobileSupport = async (audio: HTMLAudioElement): Promise<void> => {
     try {
-      // Ensure AudioContext is resumed for mobile browsers
-      if (audioContext && audioContext.state === 'suspended') {
-        await audioContext.resume();
+      console.log('[Mobile Audio Debug] playAudioWithMobileSupport called');
+      console.log('[Mobile Audio Debug] AudioContext state:', audioContext?.state);
+      console.log('[Mobile Audio Debug] User has interacted:', userHasInteracted);
+      
+      // Handle closed AudioContext by creating a new one
+      if (audioContext && audioContext.state === 'closed') {
+        console.log('[Mobile Audio Debug] AudioContext is closed, creating new one...');
+        const newCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        setAudioContext(newCtx);
+        console.log('[Mobile Audio Debug] New AudioContext created, state:', newCtx.state);
       }
       
+      // Ensure AudioContext is resumed for mobile browsers
+      if (audioContext && audioContext.state === 'suspended') {
+        console.log('[Mobile Audio Debug] Resuming suspended AudioContext...');
+        await audioContext.resume();
+        console.log('[Mobile Audio Debug] AudioContext resumed, new state:', audioContext.state);
+      }
+      
+      console.log('[Mobile Audio Debug] Attempting audio.play()...');
       await audio.play();
+      console.log('[Mobile Audio Debug] Audio play successful in playAudioWithMobileSupport!');
     } catch (error) {
-       console.error('Audio playback failed:', error);
+       console.error('[Mobile Audio Debug] Audio playback failed in playAudioWithMobileSupport:', error);
        
        // If autoplay fails and user hasn't interacted, wait for interaction
        if (!userHasInteracted) {
+         console.log('[Mobile Audio Debug] User interaction required - throwing error');
          throw new Error('User interaction required for audio playback');
        }
        
@@ -209,7 +264,11 @@ const SurahView: React.FC<SurahViewProps> = ({
   };
 
   const handlePlayWithoutTooltip = async (ayahNumber: number) => {
+    console.log('[Mobile Audio Debug] handlePlayWithoutTooltip called for ayah:', ayahNumber);
+    console.log('[Mobile Audio Debug] Current playing ayah:', playingAyah);
+    
     if (playingAyah === ayahNumber) {
+      console.log('[Mobile Audio Debug] Pausing current audio');
       audio?.pause();
       setPlayingAyah(null);
       setAudio(null);
@@ -217,34 +276,41 @@ const SurahView: React.FC<SurahViewProps> = ({
     }
 
     if (audio) {
+      console.log('[Mobile Audio Debug] Stopping previous audio');
       audio.pause();
       setAudio(null);
     }
 
+    console.log('[Mobile Audio Debug] Creating new audio for ayah:', ayahNumber);
     const newAudio = new Audio(`https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNumber}.mp3`);
 
     newAudio.addEventListener('ended', async () => {
+      console.log('[Mobile Audio Debug] Audio ended for ayah:', ayahNumber);
       setPlayingAyah(null);
       setAudio(null);
       
       // Auto-play next ayah
       setTimeout(async () => {
+        console.log('[Mobile Audio Debug] Auto-playing next ayah after:', ayahNumber);
         await playNextAyah(ayahNumber);
       }, 1000); // 1 second delay before playing next ayah
     });
 
     try {
+      console.log('[Mobile Audio Debug] Attempting to play audio with mobile support...');
       await playAudioWithMobileSupport(newAudio);
+      console.log('[Mobile Audio Debug] Audio playback successful, setting state...');
       setPlayingAyah(ayahNumber);
       setAudio(newAudio);
       
       // Scroll to the currently playing ayah
       scrollToAyahCard(ayahNumber);
     } catch (error) {
-        console.error('Error playing audio:', error);
+        console.error('[Mobile Audio Debug] Error in handlePlayWithoutTooltip:', error);
         
         // If user interaction is required, the audio will be played when user interacts
         if (error instanceof Error && error.message === 'User interaction required for audio playback') {
+          console.log('[Mobile Audio Debug] Storing audio for delayed playback');
           // Store the audio for later playback
           setAudio(newAudio);
           setPlayingAyah(ayahNumber);
