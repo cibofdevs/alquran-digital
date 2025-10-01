@@ -34,10 +34,33 @@ const SurahView: React.FC<SurahViewProps> = ({
   const [actionTooltip, setActionTooltip] = useState<{ ayah: number; action: string; text: string } | null>(null);
   const [userHasInteracted, setUserHasInteracted] = useState(false);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
   const ayahRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipTimeout = useRef<NodeJS.Timeout | undefined>();
   const headerRef = useRef<HTMLDivElement>(null);
+
+  // Detect real mobile device (not just screen size)
+  useEffect(() => {
+    const detectMobileDevice = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isRealMobile = isMobile && isTouchDevice;
+      
+      console.log('[Mobile Audio Debug] Device detection:', {
+        userAgent: userAgent.substring(0, 100),
+        isMobile,
+        isTouchDevice,
+        isRealMobile,
+        maxTouchPoints: navigator.maxTouchPoints
+      });
+      
+      setIsMobileDevice(isRealMobile);
+    };
+
+    detectMobileDevice();
+  }, []);
 
   useEffect(() => {
     if (scrollToAyah && ayahRefs.current[scrollToAyah]) {
@@ -144,7 +167,8 @@ const SurahView: React.FC<SurahViewProps> = ({
       hasAudio: !!audio,
       playingAyah,
       hasAudioContext: !!audioContext,
-      audioContextState: audioContext?.state
+      audioContextState: audioContext?.state,
+      isMobileDevice
     });
     
     if (userHasInteracted && audio && playingAyah && audioContext) {
@@ -152,6 +176,7 @@ const SurahView: React.FC<SurahViewProps> = ({
         try {
           console.log('[Mobile Audio Debug] Attempting to play delayed audio...');
           console.log('[Mobile Audio Debug] AudioContext state before play:', audioContext.state);
+          console.log('[Mobile Audio Debug] Is mobile device in delayed play:', isMobileDevice);
           
           // Handle closed AudioContext by creating a new one
           if (audioContext.state === 'closed') {
@@ -168,21 +193,77 @@ const SurahView: React.FC<SurahViewProps> = ({
             console.log('[Mobile Audio Debug] AudioContext resumed, new state:', audioContext.state);
           }
           
+          // Mobile-specific handling for delayed audio
+          if (isMobileDevice) {
+            console.log('[Mobile Audio Debug] Applying mobile workarounds for delayed audio...');
+            
+            // Ensure audio is properly loaded and ready
+            if (audio.readyState < 2) {
+              console.log('[Mobile Audio Debug] Audio not ready for delayed play, forcing load...');
+              audio.load();
+              
+              // Wait for audio to be ready
+              await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                  reject(new Error('Delayed audio load timeout'));
+                }, 3000);
+                
+                const onCanPlay = () => {
+                  clearTimeout(timeout);
+                  audio.removeEventListener('canplay', onCanPlay);
+                  audio.removeEventListener('error', onError);
+                  resolve(void 0);
+                };
+                
+                const onError = () => {
+                  clearTimeout(timeout);
+                  audio.removeEventListener('canplay', onCanPlay);
+                  audio.removeEventListener('error', onError);
+                  reject(new Error('Delayed audio load error'));
+                };
+                
+                audio.addEventListener('canplay', onCanPlay);
+                audio.addEventListener('error', onError);
+              });
+            }
+            
+            // Additional mobile-specific settings
+            audio.volume = 1.0;
+            audio.muted = false;
+            
+            // Small delay for mobile browsers
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+          
           console.log('[Mobile Audio Debug] Calling audio.play()...');
-          await audio.play();
-          console.log('[Mobile Audio Debug] Audio play successful!');
+          const playPromise = audio.play();
+          
+          if (playPromise !== undefined) {
+            await playPromise;
+            console.log('[Mobile Audio Debug] Audio play successful!');
+          }
+          
           scrollToAyahCard(playingAyah);
         } catch (error) {
           console.error('[Mobile Audio Debug] Failed to play delayed audio:', error);
           if (error instanceof Error) {
             console.error('[Mobile Audio Debug] Error details:', error.message);
           }
+          
+          // Mobile-specific error handling for delayed audio
+          if (isMobileDevice && error instanceof DOMException) {
+            if (error.name === 'NotAllowedError') {
+              console.log('[Mobile Audio Debug] Delayed audio blocked - user interaction may have expired');
+            } else if (error.name === 'AbortError') {
+              console.log('[Mobile Audio Debug] Delayed audio aborted - likely due to new audio starting');
+            }
+          }
         }
       };
       
       playDelayedAudio();
     }
-  }, [userHasInteracted, audio, playingAyah, audioContext]);
+  }, [userHasInteracted, audio, playingAyah, audioContext, isMobileDevice]);
 
   const showActionTooltip = (ayahNumber: number, action: string, text: string) => {
     if (tooltipTimeout.current) {
@@ -224,6 +305,7 @@ const SurahView: React.FC<SurahViewProps> = ({
       console.log('[Mobile Audio Debug] playAudioWithMobileSupport called');
       console.log('[Mobile Audio Debug] AudioContext state:', audioContext?.state);
       console.log('[Mobile Audio Debug] User has interacted:', userHasInteracted);
+      console.log('[Mobile Audio Debug] Is real mobile device:', isMobileDevice);
       
       // Handle closed AudioContext by creating a new one
       if (audioContext && audioContext.state === 'closed') {
@@ -240,11 +322,85 @@ const SurahView: React.FC<SurahViewProps> = ({
         console.log('[Mobile Audio Debug] AudioContext resumed, new state:', audioContext.state);
       }
       
+      // Mobile-specific workarounds
+      if (isMobileDevice) {
+        console.log('[Mobile Audio Debug] Applying mobile-specific workarounds...');
+        
+        // iOS Safari specific workarounds
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        if (isIOS) {
+          console.log('[Mobile Audio Debug] iOS detected - applying iOS workarounds');
+          // Force load the audio
+          audio.load();
+          // Set volume explicitly (iOS sometimes has issues with volume)
+          audio.volume = 1.0;
+          // Ensure audio is not muted
+          audio.muted = false;
+        }
+        
+        // Android Chrome specific workarounds
+        const isAndroidChrome = /android.*chrome/i.test(navigator.userAgent);
+        if (isAndroidChrome) {
+          console.log('[Mobile Audio Debug] Android Chrome detected - applying Android workarounds');
+          // Ensure preload is set
+          audio.preload = 'auto';
+          // Force load
+          audio.load();
+        }
+        
+        // General mobile workarounds
+        // Add a small delay to ensure audio is ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Check if audio is ready to play
+        if (audio.readyState < 2) {
+          console.log('[Mobile Audio Debug] Audio not ready, waiting for canplay event...');
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error('Audio load timeout'));
+            }, 5000);
+            
+            audio.addEventListener('canplay', () => {
+              clearTimeout(timeout);
+              resolve(void 0);
+            }, { once: true });
+            
+            audio.addEventListener('error', () => {
+              clearTimeout(timeout);
+              reject(new Error('Audio load error'));
+            }, { once: true });
+          });
+        }
+      }
+      
       console.log('[Mobile Audio Debug] Attempting audio.play()...');
-      await audio.play();
-      console.log('[Mobile Audio Debug] Audio play successful in playAudioWithMobileSupport!');
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        await playPromise;
+        console.log('[Mobile Audio Debug] Audio play successful in playAudioWithMobileSupport!');
+      }
     } catch (error) {
        console.error('[Mobile Audio Debug] Audio playback failed in playAudioWithMobileSupport:', error);
+       
+       // Enhanced error handling for mobile devices
+       if (isMobileDevice) {
+         console.log('[Mobile Audio Debug] Mobile device error handling...');
+         
+         // Check if it's a user interaction issue
+         if (error instanceof DOMException && error.name === 'NotAllowedError') {
+           console.log('[Mobile Audio Debug] NotAllowedError - user interaction required');
+           if (!userHasInteracted) {
+             throw new Error('User interaction required for audio playback on mobile');
+           }
+         }
+         
+         // Check if it's a network issue
+         if (error instanceof DOMException && error.name === 'NotSupportedError') {
+           console.log('[Mobile Audio Debug] NotSupportedError - audio format or network issue');
+           throw new Error('Audio format not supported or network error');
+         }
+       }
        
        // If autoplay fails and user hasn't interacted, wait for interaction
        if (!userHasInteracted) {
@@ -446,8 +602,16 @@ const SurahView: React.FC<SurahViewProps> = ({
               </div>
               <div className="ml-3">
                 <p className="text-orange-700 dark:text-orange-300 font-medium">
-                  <strong>Audio Playback:</strong> Tap any button or click anywhere to enable audio recitation on mobile devices.
+                  <strong>Audio Playback:</strong> {isMobileDevice 
+                    ? 'Tap any button or click anywhere to enable audio recitation. Some mobile browsers may require multiple taps for autoplay to work properly.'
+                    : 'Tap any button or click anywhere to enable audio recitation on mobile devices.'
+                  }
                 </p>
+                {isMobileDevice && (
+                  <p className="text-orange-600 dark:text-orange-400 text-sm mt-1">
+                    📱 Mobile device detected. If audio doesn't autoplay after interaction, try tapping the play button again.
+                  </p>
+                )}
               </div>
             </div>
           </div>
