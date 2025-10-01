@@ -34,7 +34,7 @@ const SurahView: React.FC<SurahViewProps> = ({
   const [actionTooltip, setActionTooltip] = useState<{ ayah: number; action: string; text: string } | null>(null);
   const ayahRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const containerRef = useRef<HTMLDivElement>(null);
-  const tooltipTimeout = useRef<NodeJS.Timeout>();
+  const tooltipTimeout = useRef<number | undefined>();
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -60,6 +60,25 @@ const SurahView: React.FC<SurahViewProps> = ({
     }
   }, [scrollToAyah, ayahs]);
 
+  // Stop audio when ayahs change (user navigates to different surah)
+  useEffect(() => {
+    if (audio) {
+      audio.pause();
+      setAudio(null);
+      setPlayingAyah(null);
+    }
+  }, [ayahs]);
+
+  // Cleanup audio on component unmount
+  useEffect(() => {
+    return () => {
+      if (audio) {
+        audio.pause();
+        setAudio(null);
+      }
+    };
+  }, [audio]);
+
   const showActionTooltip = (ayahNumber: number, action: string, text: string) => {
     if (tooltipTimeout.current) {
       clearTimeout(tooltipTimeout.current);
@@ -68,6 +87,74 @@ const SurahView: React.FC<SurahViewProps> = ({
     tooltipTimeout.current = setTimeout(() => {
       setActionTooltip(null);
     }, 2000);
+  };
+
+  const getNextAyah = (currentAyahNumber: number): Ayah | null => {
+    const currentIndex = ayahs.findIndex(ayah => ayah.number === currentAyahNumber);
+    if (currentIndex !== -1 && currentIndex < ayahs.length - 1) {
+      return ayahs[currentIndex + 1];
+    }
+    return null;
+  };
+
+  const scrollToAyahCard = (ayahNumber: number) => {
+    const container = containerRef.current;
+    const element = ayahRefs.current[ayahNumber];
+    const header = headerRef.current;
+
+    if (container && element && header) {
+      const headerHeight = header.offsetHeight;
+      const elementTop = element.offsetTop;
+
+      container.scrollTo({
+        top: elementTop - headerHeight - 20, // 20px extra padding
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const playNextAyah = async (currentAyahNumber: number) => {
+    const nextAyah = getNextAyah(currentAyahNumber);
+    if (nextAyah) {
+      await handlePlayWithoutTooltip(nextAyah.number);
+    }
+  };
+
+  const handlePlayWithoutTooltip = async (ayahNumber: number) => {
+    if (playingAyah === ayahNumber) {
+      audio?.pause();
+      setPlayingAyah(null);
+      setAudio(null);
+      return;
+    }
+
+    if (audio) {
+      audio.pause();
+      setAudio(null);
+    }
+
+    const newAudio = new Audio(`https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNumber}.mp3`);
+
+    newAudio.addEventListener('ended', async () => {
+      setPlayingAyah(null);
+      setAudio(null);
+      
+      // Auto-play next ayah
+      setTimeout(async () => {
+        await playNextAyah(ayahNumber);
+      }, 1000); // 1 second delay before playing next ayah
+    });
+
+    try {
+      await newAudio.play();
+      setPlayingAyah(ayahNumber);
+      setAudio(newAudio);
+      
+      // Scroll to the currently playing ayah
+      scrollToAyahCard(ayahNumber);
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
   };
 
   const handlePlay = async (ayahNumber: number) => {
@@ -86,10 +173,15 @@ const SurahView: React.FC<SurahViewProps> = ({
 
     const newAudio = new Audio(`https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNumber}.mp3`);
 
-    newAudio.addEventListener('ended', () => {
+    newAudio.addEventListener('ended', async () => {
       setPlayingAyah(null);
       setAudio(null);
       showActionTooltip(ayahNumber, 'play', 'Playback completed');
+      
+      // Auto-play next ayah
+       setTimeout(async () => {
+         await playNextAyah(ayahNumber);
+       }, 1000); // 1 second delay before playing next ayah
     });
 
     try {
@@ -97,6 +189,9 @@ const SurahView: React.FC<SurahViewProps> = ({
       setPlayingAyah(ayahNumber);
       setAudio(newAudio);
       showActionTooltip(ayahNumber, 'play', 'Playing recitation');
+      
+      // Scroll to the currently playing ayah
+      scrollToAyahCard(ayahNumber);
     } catch (error) {
       console.error('Error playing audio:', error);
       showActionTooltip(ayahNumber, 'play', 'Failed to play audio');
