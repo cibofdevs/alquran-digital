@@ -32,9 +32,11 @@ const SurahView: React.FC<SurahViewProps> = ({
   const [playingAyah, setPlayingAyah] = useState<number | null>(null);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [actionTooltip, setActionTooltip] = useState<{ ayah: number; action: string; text: string } | null>(null);
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
+  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const ayahRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const containerRef = useRef<HTMLDivElement>(null);
-  const tooltipTimeout = useRef<number | undefined>();
+  const tooltipTimeout = useRef<NodeJS.Timeout | undefined>();
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -76,8 +78,64 @@ const SurahView: React.FC<SurahViewProps> = ({
         audio.pause();
         setAudio(null);
       }
+      if (audioContext) {
+        audioContext.close();
+      }
     };
-  }, [audio]);
+  }, [audio, audioContext]);
+
+  // Initialize AudioContext and setup user interaction detection
+  useEffect(() => {
+    const initAudioContext = () => {
+      if (!audioContext) {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        setAudioContext(ctx);
+      }
+    };
+
+    const handleUserInteraction = () => {
+      if (!userHasInteracted) {
+        setUserHasInteracted(true);
+        initAudioContext();
+        
+        // Resume AudioContext if suspended
+        if (audioContext && audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+      }
+    };
+
+    // Add event listeners for user interaction
+    const events = ['touchstart', 'touchend', 'mousedown', 'keydown', 'click'];
+    events.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { once: true, passive: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserInteraction);
+      });
+    };
+  }, [userHasInteracted, audioContext]);
+
+  // Handle delayed audio playback when user interaction is detected
+  useEffect(() => {
+    if (userHasInteracted && audio && playingAyah && audioContext) {
+      const playDelayedAudio = async () => {
+        try {
+          if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+          }
+          await audio.play();
+          scrollToAyahCard(playingAyah);
+        } catch (error) {
+           console.error('Failed to play delayed audio:', error);
+         }
+      };
+      
+      playDelayedAudio();
+    }
+  }, [userHasInteracted, audio, playingAyah, audioContext]);
 
   const showActionTooltip = (ayahNumber: number, action: string, text: string) => {
     if (tooltipTimeout.current) {
@@ -113,6 +171,27 @@ const SurahView: React.FC<SurahViewProps> = ({
     }
   };
 
+  // Helper function to handle audio playback with mobile browser support
+  const playAudioWithMobileSupport = async (audio: HTMLAudioElement): Promise<void> => {
+    try {
+      // Ensure AudioContext is resumed for mobile browsers
+      if (audioContext && audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+      
+      await audio.play();
+    } catch (error) {
+       console.error('Audio playback failed:', error);
+       
+       // If autoplay fails and user hasn't interacted, wait for interaction
+       if (!userHasInteracted) {
+         throw new Error('User interaction required for audio playback');
+       }
+       
+       throw error;
+     }
+  };
+
   const playNextAyah = async (currentAyahNumber: number) => {
     const nextAyah = getNextAyah(currentAyahNumber);
     if (nextAyah) {
@@ -146,15 +225,22 @@ const SurahView: React.FC<SurahViewProps> = ({
     });
 
     try {
-      await newAudio.play();
+      await playAudioWithMobileSupport(newAudio);
       setPlayingAyah(ayahNumber);
       setAudio(newAudio);
       
       // Scroll to the currently playing ayah
       scrollToAyahCard(ayahNumber);
     } catch (error) {
-      console.error('Error playing audio:', error);
-    }
+        console.error('Error playing audio:', error);
+        
+        // If user interaction is required, the audio will be played when user interacts
+        if (error instanceof Error && error.message === 'User interaction required for audio playback') {
+          // Store the audio for later playback
+          setAudio(newAudio);
+          setPlayingAyah(ayahNumber);
+        }
+      }
   };
 
   const handlePlay = async (ayahNumber: number) => {
@@ -185,7 +271,7 @@ const SurahView: React.FC<SurahViewProps> = ({
     });
 
     try {
-      await newAudio.play();
+      await playAudioWithMobileSupport(newAudio);
       setPlayingAyah(ayahNumber);
       setAudio(newAudio);
       showActionTooltip(ayahNumber, 'play', 'Playing recitation');
@@ -194,7 +280,15 @@ const SurahView: React.FC<SurahViewProps> = ({
       scrollToAyahCard(ayahNumber);
     } catch (error) {
       console.error('Error playing audio:', error);
-      showActionTooltip(ayahNumber, 'play', 'Failed to play audio');
+      
+      if (error instanceof Error && error.message === 'User interaction required for audio playback') {
+        showActionTooltip(ayahNumber, 'play', 'Tap to enable audio playback');
+        // Store the audio for later playback
+        setAudio(newAudio);
+        setPlayingAyah(ayahNumber);
+      } else {
+        showActionTooltip(ayahNumber, 'play', 'Failed to play audio');
+      }
     }
   };
 
@@ -268,6 +362,22 @@ const SurahView: React.FC<SurahViewProps> = ({
 
   return (
       <div ref={containerRef} className="h-full overflow-y-auto bg-white/90 dark:bg-dark-200/90 rounded-lg shadow-lg backdrop-blur-sm">
+        {/* Mobile autoplay notice */}
+        {!userHasInteracted && (
+          <div className="bg-orange-100 dark:bg-orange-900/30 border-l-4 border-orange-500 p-3 text-sm">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Play className="w-4 h-4 text-orange-500" />
+              </div>
+              <div className="ml-3">
+                <p className="text-orange-700 dark:text-orange-300">
+                  <strong>Mobile Audio Notice:</strong> Tap anywhere on the page to enable audio playback for recitation.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div
             ref={headerRef}
             className="bg-gradient-to-r from-primary-500 to-accent-500 dark:from-primary-600 dark:to-accent-600 text-white p-6 rounded-t-lg sticky top-0 z-10 backdrop-blur-sm"
@@ -337,7 +447,11 @@ const SurahView: React.FC<SurahViewProps> = ({
                     <div className="relative">
                       <button
                           onClick={() => handlePlay(ayah.number)}
-                          className="p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 text-primary-600 dark:text-primary-400 group"
+                          className={`p-2 rounded-full hover:bg-primary-50/80 dark:hover:bg-dark-100/80 group ${
+                            playingAyah === ayah.number && !userHasInteracted && audio
+                              ? 'text-orange-500 dark:text-orange-400 animate-pulse'
+                              : 'text-primary-600 dark:text-primary-400'
+                          }`}
                       >
                         {playingAyah === ayah.number ? (
                             <Pause className="w-5 h-5" />
@@ -345,8 +459,11 @@ const SurahView: React.FC<SurahViewProps> = ({
                             <Play className="w-5 h-5" />
                         )}
                         <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      {playingAyah === ayah.number ? 'Pause recitation' : 'Play recitation'}
-                    </span>
+                          {playingAyah === ayah.number && !userHasInteracted && audio
+                            ? 'Tap anywhere to enable audio'
+                            : playingAyah === ayah.number ? 'Pause recitation' : 'Play recitation'
+                          }
+                        </span>
                       </button>
                       {actionTooltip && actionTooltip.ayah === ayah.number && actionTooltip.action === 'play' && (
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded-lg animate-fade-in">
